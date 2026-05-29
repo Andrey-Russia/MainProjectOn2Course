@@ -8,6 +8,7 @@ public class ShadowEnemy : MonoBehaviour
     [SerializeField] private NavMeshAgent agent;
     [SerializeField] private Image darknessPanel;
     [SerializeField] private float detectionRange = 2f;
+    [SerializeField] private int shadowDamage = 1; // наносим 1 сердце урона
 
     private void Start()
     {
@@ -18,6 +19,7 @@ public class ShadowEnemy : MonoBehaviour
     {
         MoveTowardsPlayer();
         AdjustDarknessLevel();
+        TryAttack();
     }
 
     private void RandomizeStartingPosition()
@@ -38,5 +40,34 @@ public class ShadowEnemy : MonoBehaviour
         float darknessIntensity = Mathf.Clamp01(1f - (distanceToPlayer / detectionRange));
 
         darknessPanel.color = new Color(darknessPanel.color.r, darknessPanel.color.g, darknessPanel.color.b, darknessIntensity);
+    }
+
+    private void TryAttack()
+    {
+        float dist = Vector3.Distance(transform.position, playerTarget.position);
+
+        if (dist <= detectionRange)
+        {
+            DealDamageToPlayer();
+        }
+    }
+
+    private void DealDamageToPlayer()
+    {
+        PlayerHealth playerHealth = playerTarget.GetComponent<PlayerHealth>();
+        if (playerHealth != null)
+        {
+            playerHealth.TakeDamage(shadowDamage);
+        }
+    }
+
+    private void OnDeath()
+    {
+        FindFirstObjectByType<MobCounter>().IncrementKillCount();
+    }
+
+    private void OnDestroy()
+    {
+        OnDeath();
     }
 }

@@ -7,6 +7,7 @@ public class GolemController : MonoBehaviour
     [SerializeField] private NavMeshAgent navAgent;
     [SerializeField] private float attackRange = 2f;
     [SerializeField] private float attackCooldown = 2f;
+    [SerializeField] private int damagePerAttack = 2; 
 
     private Transform target;
     private float lastAttackTime;
@@ -49,6 +50,16 @@ public class GolemController : MonoBehaviour
     {
         animator.SetTrigger("Attack");
         lastAttackTime = Time.time;
+        DealDamageToPlayer();
+    }
+
+    private void DealDamageToPlayer()
+    {
+        PlayerHealth playerHealth = target.GetComponent<PlayerHealth>();
+        if (playerHealth != null)
+        {
+            playerHealth.TakeDamage(damagePerAttack);
+        }
     }
 
     private void OnDestroy()
