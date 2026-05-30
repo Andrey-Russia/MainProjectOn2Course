@@ -1,55 +1,40 @@
 using System.IO;
-using TMPro;
 using UnityEngine;
+using TMPro;
 
 [System.Serializable]
 public class ArtifactData
 {
     public int collectedArtifactsCount;
-
-    public ArtifactData()
-    {
-        collectedArtifactsCount = 0;
-    }
 }
 
 public class ArtifactCollector : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI artifactCounterText;
     [SerializeField] private string saveFileName = "artifacts.json";
-
-    private ArtifactData artifactData;
+    [SerializeField] private TextMeshProUGUI artifactCounterText;
 
     private string saveFilePath => Path.Combine(Application.persistentDataPath, saveFileName);
+    internal ArtifactData artifactData;
+
+    private void Awake()
+    {
+        LoadArtifactData();
+    }
 
     private void Start()
     {
-        LoadArtifactData();
         UpdateArtifactCounterText();
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            ResetArtifactCollection();
-        }
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Artifact"))
-        {
-            CollectArtifact(other.gameObject);
-        }
     }
 
     public void CollectArtifact(GameObject artifact)
     {
-        artifactData.collectedArtifactsCount++;
-        SaveArtifactData();
-        UpdateArtifactCounterText();
-        Destroy(artifact);
+        if (artifact != null && !HasSixArtifacts())
+        {
+            artifactData.collectedArtifactsCount++;
+            SaveArtifactData();
+            Destroy(artifact);
+            UpdateArtifactCounterText();
+        }
     }
 
     private void LoadArtifactData()
@@ -61,7 +46,7 @@ public class ArtifactCollector : MonoBehaviour
         }
         else
         {
-            artifactData = new ArtifactData();
+            artifactData = new ArtifactData { collectedArtifactsCount = 0 };
         }
     }
 
@@ -71,12 +56,12 @@ public class ArtifactCollector : MonoBehaviour
         File.WriteAllText(saveFilePath, dataAsJson);
     }
 
-    private void UpdateArtifactCounterText()
+    public bool HasFiveArtifacts()
     {
-        artifactCounterText.text = $"Собрано Артефактов: {artifactData.collectedArtifactsCount}/6";
+        return artifactData.collectedArtifactsCount >= 5;
     }
 
-    public bool HasAllArtifacts()
+    public bool HasSixArtifacts()
     {
         return artifactData.collectedArtifactsCount >= 6;
     }
@@ -84,12 +69,15 @@ public class ArtifactCollector : MonoBehaviour
     public void ResetArtifactCollection()
     {
         artifactData.collectedArtifactsCount = 1;
+        SaveArtifactData();
         UpdateArtifactCounterText();
-        ClearSaveFile();
     }
 
-    private void ClearSaveFile()
+    private void UpdateArtifactCounterText()
     {
-        File.WriteAllText(saveFilePath, "{}");
+        if (artifactCounterText != null)
+        {
+            artifactCounterText.text = $"Собрано артефактов: {artifactData.collectedArtifactsCount}/6";
+        }
     }
 }

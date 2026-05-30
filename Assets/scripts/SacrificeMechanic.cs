@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class SacrificeMechanic : MonoBehaviour
 {
     [SerializeField] private Image sacrificeScreen;
-    [SerializeField] private AltarContoller altarController;
+    [SerializeField] private AltarController altarController;
     [SerializeField] private float fadeDuration = 2f;
 
     private Coroutine fadeCoroutine;

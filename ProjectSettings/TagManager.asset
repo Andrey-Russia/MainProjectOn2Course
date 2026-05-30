@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Artifact
   - 1
+  - Golem
   layers:
   - Default
   - TransparentFX

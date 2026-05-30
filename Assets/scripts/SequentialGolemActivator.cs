@@ -10,27 +10,77 @@ public class SequentialGolemActivator : MonoBehaviour
 
     private void Start()
     {
-        ActivateCurrentGolem();
+        if (golems.Length > 0)
+            ActivateCurrentGolem();
+        else
+            Debug.LogError("No golems assigned!");
     }
 
     public void OnGolemDestroyed(GameObject destroyedGolem)
     {
-        if (destroyedGolem == golems[currentGolemIndex])
+        if (IsValidGolem(destroyedGolem))
+            AdvanceToNextGolem();
+        else
+            Debug.LogWarning($"Invalid golem destroyed: {destroyedGolem.name}. Current index: {currentGolemIndex}");
+    }
+
+    private bool IsValidGolem(GameObject destroyedGolem)
+    {
+        if (currentGolemIndex >= golems.Length || currentGolemIndex < 0)
         {
-            currentGolemIndex++;
-            if (currentGolemIndex < golems.Length)
-                ActivateCurrentGolem();
+            Debug.LogError("Golem index out of range!");
+            return false;
         }
+
+        if (destroyedGolem == null)
+        {
+            Debug.LogError("Null golem reference!");
+            return false;
+        }
+
+        if (destroyedGolem != golems[currentGolemIndex])
+        {
+            Debug.LogWarning($"Wrong golem destroyed: Expected {golems[currentGolemIndex].name}, but got {destroyedGolem.name}");
+            return false;
+        }
+
+        return true;
+    }
+
+    private void AdvanceToNextGolem()
+    {
+        currentGolemIndex++;
+
+        if (currentGolemIndex < golems.Length)
+            ActivateCurrentGolem();
+        else
+            Debug.Log("All golems defeated!");
     }
 
     private void ActivateCurrentGolem()
     {
         foreach (var golem in golems)
-            golem.SetActive(false);
+        {
+            if (golem != null)
+                golem.SetActive(false);
+            else
+                Debug.LogWarning("Null golem detected!");
+        }
 
-        golems[currentGolemIndex].SetActive(true);
+        if (currentGolemIndex < golems.Length)
+        {
+            if (golems[currentGolemIndex] != null)
+            {
+                golems[currentGolemIndex].SetActive(true);
 
-        GolemController controller = golems[currentGolemIndex].GetComponent<GolemController>();
-        controller.Initialize(playerTarget);
+                GolemController controller = golems[currentGolemIndex].GetComponent<GolemController>();
+                if (controller != null)
+                    controller.Initialize(playerTarget);
+                else
+                    Debug.LogWarning("Missing GolemController component!");
+            }
+            else
+                Debug.LogError("Null golem at index!");
+        }
     }
 }

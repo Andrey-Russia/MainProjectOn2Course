@@ -7,7 +7,8 @@ public class GolemController : MonoBehaviour
     [SerializeField] private NavMeshAgent navAgent;
     [SerializeField] private float attackRange = 2f;
     [SerializeField] private float attackCooldown = 2f;
-    [SerializeField] private int damagePerAttack = 2; 
+    [SerializeField] private int damagePerAttack = 2;
+    [SerializeField] private GolemCounter golemCounter;
 
     private Transform target;
     private float lastAttackTime;
@@ -19,31 +20,43 @@ public class GolemController : MonoBehaviour
 
     private void Update()
     {
-        MoveTowardsTarget();
-        TryAttack();
+        if (target != null)
+        {
+            MoveTowardsTarget();
+            TryAttack();
+        }
     }
 
     private void MoveTowardsTarget()
     {
-        navAgent.SetDestination(target.position);
-        animator.SetBool("IsMoving", true);
+        if (navAgent != null && target != null)
+        {
+            navAgent.SetDestination(target.position);
+            animator.SetBool("IsMoving", true);
+        }
     }
 
     private void TryAttack()
     {
-        float dist = Vector3.Distance(transform.position, target.position);
-
-        if (dist <= attackRange && Time.time - lastAttackTime >= attackCooldown)
+        if (target != null)
         {
-            StopMovement();
-            PlayAttackAnimation();
+            float dist = Vector3.Distance(transform.position, target.position);
+
+            if (dist <= attackRange && Time.time - lastAttackTime >= attackCooldown)
+            {
+                StopMovement();
+                PlayAttackAnimation();
+            }
         }
     }
 
     private void StopMovement()
     {
-        navAgent.isStopped = true;
-        animator.SetBool("IsMoving", false);
+        if (navAgent != null)
+        {
+            navAgent.isStopped = true;
+            animator.SetBool("IsMoving", false);
+        }
     }
 
     private void PlayAttackAnimation()
@@ -55,15 +68,23 @@ public class GolemController : MonoBehaviour
 
     private void DealDamageToPlayer()
     {
-        PlayerHealth playerHealth = target.GetComponent<PlayerHealth>();
-        if (playerHealth != null)
+        if (target != null)
         {
-            playerHealth.TakeDamage(damagePerAttack);
+            PlayerHealth playerHealth = target.GetComponent<PlayerHealth>();
+            if (playerHealth != null)
+            {
+                playerHealth.TakeDamage(damagePerAttack);
+            }
         }
     }
 
     private void OnDestroy()
     {
+        if (golemCounter != null)
+        {
+            golemCounter.IncrementKillCount();
+        }
+
         FindFirstObjectByType<SequentialGolemActivator>()?.OnGolemDestroyed(gameObject);
     }
 }

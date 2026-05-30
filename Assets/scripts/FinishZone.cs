@@ -2,30 +2,25 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class PlayerHealth : MonoBehaviour
+public class FinishZone : MonoBehaviour
 {
-    [SerializeField] private int maxHealth = 3;
-
-    private int currentHealth;
-
     private void Start()
     {
-        currentHealth = maxHealth;
+        gameObject.SetActive(true);
     }
 
-    public void TakeDamage(int amount)
+    private void OnTriggerEnter(Collider other)
     {
-        currentHealth -= amount;
-
-        if (currentHealth <= 0)
+        if (other.CompareTag("Player"))
         {
-            Die();
+            CompleteGame();
         }
     }
 
-    private void Die()
+    private void CompleteGame()
     {
         ResetGameProgress();
+        SceneManager.LoadScene("MainMenu");
     }
 
     private void ResetGameProgress()
@@ -36,7 +31,5 @@ public class PlayerHealth : MonoBehaviour
         {
             File.Delete(saveFilePath);
         }
-
-        SceneManager.LoadScene("MainMenu");
     }
 }

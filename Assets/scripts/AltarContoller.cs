@@ -1,15 +1,14 @@
-using TMPro;
 using UnityEngine;
 
-public class AltarContoller : MonoBehaviour
+public class AltarController : MonoBehaviour
 {
     [SerializeField] private GameObject secretPassage;
     [SerializeField] private ArtifactCollector artifactCollector;
-    [SerializeField] private TextMeshProUGUI artifactCounterText;
 
-    private void Start()
+
+private void Start()
     {
-        secretPassage.SetActive(false);
+        secretPassage.SetActive(true);
     }
 
     private void Update()
@@ -19,7 +18,7 @@ public class AltarContoller : MonoBehaviour
 
     private void CheckAltarActivation()
     {
-        if (artifactCollector.HasAllArtifacts())
+        if (artifactCollector.HasSixArtifacts())
         {
             OpenSecretPassage();
         }
@@ -27,7 +26,6 @@ public class AltarContoller : MonoBehaviour
 
     private void OpenSecretPassage()
     {
-        secretPassage.SetActive(true);
-        artifactCounterText.text = "Открыт тайный проход!";
+        secretPassage.SetActive(false);
     }
 }
